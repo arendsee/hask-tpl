@@ -1,6 +1,6 @@
 module Benjamin (
     interpret
-  , Expr(..)
+  , A1_Expr(..)
   , step
   , walk
 ) where
