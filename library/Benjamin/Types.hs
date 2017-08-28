@@ -1,8 +1,6 @@
 module Benjamin.Types
 (
-    A1_Expr(..)
-  , L1_Expr(..)
-  , L1DB_Expr(..)
+    Expr(..)
   , step
   , walk
   , substitute
@@ -78,16 +76,6 @@ shift :: Integer -> L1DB_Expr -> L1DB_Expr
 shift i (L1DB_Var   k) = undefined 
 shift i (L1DB_App a b) = undefined
 shift i (L1DB_Abs n a) = undefined
-
--- Adapted from definition 6.2.4 from TPL. 6.2.4 is used directly yields
--- objects that mix indexes and symbols, which is ugly and evil. I fix this by
--- using a list of index/symbol pairs, rather than just one. Also I add a new
--- pair on every descent into an application.
---
--- Update: I misunderstood the definition. The `s` that is being substituted in
--- is not merely a replacement name, but rather is an expression that is
--- replacing the expressiono pointed to by the index `j`. The expression `s`
--- has its own de Bruijn indices, which need to be updated.
 
 substitute :: Integer -> L1DB_Expr -> L1DB_Expr -> L1DB_Expr
 substitute i s (L1DB_App a b) = L1DB_App (substitute i s a) (substitute i s b)

@@ -1,8 +1,7 @@
 module Benjamin (
     interpret
-  , A1_Expr(..)
-  , L1_Expr(..)
-  , L1DB_Expr(..)
+  , Expr(..)
+  , Expr(..)
   , step
   , walk
   , substitute
