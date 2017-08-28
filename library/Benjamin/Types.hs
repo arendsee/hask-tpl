@@ -56,8 +56,6 @@ instance Lang A1_Expr where
   is_value _           = False
 
 
-type ThrowsError = Either String
-
 type VarName = String
 
 data L1_Expr
@@ -76,23 +74,38 @@ to_db_index :: L1_Expr -> L1DB_Expr
 to_db_index e = undefined
 
 -- Follows definition 6.2.1 from TPL
-shift :: L1DB_Expr -> L1DB_Expr
-shift e = undefined
+shift :: Integer -> L1DB_Expr -> L1DB_Expr
+shift i (L1DB_Var   k) = undefined 
+shift i (L1DB_App a b) = undefined
+shift i (L1DB_Abs n a) = undefined
 
 -- Adapted from definition 6.2.4 from TPL. 6.2.4 is used directly yields
 -- objects that mix indexes and symbols, which is ugly and evil. I fix this by
 -- using a list of index/symbol pairs, rather than just one. Also I add a new
 -- pair on every descent into an application.
-substitute :: [(Integer, String)] -> L1DB_Expr -> ThrowsError L1_Expr
-substitute js (L1DB_Var k) = case (lookup k js) of
-  Nothing -> Left "Aww shucks, couldn't find that number"
-  Just s  -> return $ L1_Var s
-substitute js (L1DB_App a b) = L1_App <$> (substitute js a) <*> (substitute js b)
-substitute js (L1DB_Abs s a) = L1_Abs s <$> (substitute new_js a) where
-  new_js = 
-    (map (\(i,x) -> (i+1,x)) js) -- Increment outer free variables by 1
-    ++
-    [(0, s)] -- Add the new locally bound variable
+--
+-- Update: I misunderstood the definition. The `s` that is being substituted in
+-- is not merely a replacement name, but rather is an expression that is
+-- replacing the expressiono pointed to by the index `j`. The expression `s`
+-- has its own de Bruijn indices, which need to be updated.
+
+substitute :: Integer -> L1DB_Expr -> L1DB_Expr -> L1DB_Expr
+substitute i s (L1DB_App a b) = L1DB_App (substitute i s a) (substitute i s b)
+substitute i s (L1DB_Abs n a) = L1DB_Abs n (substitute (i+1) s a)
+substitute i s (L1DB_Var k)
+  | i == k = shift i s
+  | otherwise = L1DB_Var k
+
+-- substitute :: [(Integer, String)] -> L1DB_Expr -> ThrowsError L1_Expr
+-- substitute js (L1DB_Var k) = case (lookup k js) of
+--   Nothing -> Left "Aww shucks, couldn't find that number"
+--   Just s  -> return $ L1_Var s
+-- substitute js (L1DB_App a b) = L1_App <$> (substitute js a) <*> (substitute js b)
+-- substitute js (L1DB_Abs s a) = L1_Abs s <$> (substitute new_js a) where
+--   new_js =
+--     (map (\(i,x) -> (i+1,x)) js) -- Increment outer free variables by 1
+--     ++
+--     [(0, s)] -- Add the new locally bound variable
 
 instance Show L1_Expr where
   show (L1_Var x  ) = x
