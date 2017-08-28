@@ -5,6 +5,8 @@ module Benjamin.Types
   , L1DB_Expr(..)
   , step
   , walk
+  , substitute
+  , shift
 ) where
 
 -- Over the course of TPL, several toy programming languages are created.
@@ -81,12 +83,12 @@ shift e = undefined
 -- objects that mix indexes and symbols, which is ugly and evil. I fix this by
 -- using a list of index/symbol pairs, rather than just one. Also I add a new
 -- pair on every descent into an application.
-substitute :: L1DB_Expr -> [(Integer, String)] -> ThrowsError L1_Expr
-substitute (L1DB_Var k) js = case (lookup k js) of
+substitute :: [(Integer, String)] -> L1DB_Expr -> ThrowsError L1_Expr
+substitute js (L1DB_Var k) = case (lookup k js) of
   Nothing -> Left "Aww shucks, couldn't find that number"
   Just s  -> return $ L1_Var s
-substitute (L1DB_App a b) js = L1_App <$> (substitute a js) <*> (substitute b js)
-substitute (L1DB_Abs s a) js = L1_Abs s <$> (substitute a new_js) where
+substitute js (L1DB_App a b) = L1_App <$> (substitute js a) <*> (substitute js b)
+substitute js (L1DB_Abs s a) = L1_Abs s <$> (substitute new_js a) where
   new_js = 
     (map (\(i,x) -> (i+1,x)) js) -- Increment outer free variables by 1
     ++

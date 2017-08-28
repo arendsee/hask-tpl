@@ -5,6 +5,8 @@ module Benjamin (
   , L1DB_Expr(..)
   , step
   , walk
+  , substitute
+  , shift
 ) where
 
 import Benjamin.Types
