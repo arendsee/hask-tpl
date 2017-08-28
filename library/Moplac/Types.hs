@@ -1,4 +1,4 @@
-module Lambda.Types
+module Moplac.Types
 (
     Expr(..)
   , step
