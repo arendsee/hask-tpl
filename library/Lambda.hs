@@ -1,14 +1,6 @@
-module Lambda (
-    interpret
-  , Expr(..)
-  , Expr(..)
-  , step
-  , walk
-  , substitute
-  , shift
+module Lambda
+(
+  module Lambda.Types
 ) where
 
-import Lambda.Types
-
-interpret :: String -> String
-interpret s = "i saw a '" ++ s ++ "'" 
+import Lambda.Types 
