@@ -3,8 +3,8 @@ module Moplac.Types
     Expr(..)
   , step
   , walk
-  -- , substitute
-  -- , shift
+  , substitute
+  , shift
   , isVal
   , getFV
   , rootDepth
@@ -23,13 +23,19 @@ instance Show Expr where
   show (App a b) = "(" ++ (show a) ++ " " ++ (show b) ++ ")"
   show (Abs   b) = "." ++ (show b)
 
-walk :: Expr -> [Expr]
-walk e = case (isVal e) of
-  True  -> [e]
-  False -> [e] ++ walk (step e)
+type Result = Either String Expr
 
-step :: Expr -> Expr
-step = undefined
+walk :: Expr -> [Result]
+walk e = case (isVal e) of
+  True  -> [Right e]
+  False -> [Right e] ++ es where
+    es = either (\x -> [Left x]) walk (step e)
+
+step :: Expr -> Result
+step (Var         k) = Right $ Var k
+step (App (Abs a) b) = Right $ substitute 1 (shift b) a
+step (App  _      _) = Left  $ "Invalid application"
+step (Abs         b) = Abs <$> (step b)
 
 isVal :: Expr -> Bool
 isVal (Var _) = True
@@ -68,15 +74,18 @@ close e = nest' (rootDepth e) e where
   nest' 0 e' = e'
   nest' i e' = Abs $ nest' (i-1) e'
 
--- -- Follows definition 6.2.1 from TPL
--- shift :: Integer -> Expr -> Expr
--- shift i (Var   k) = undefined
--- shift i (App a b) = undefined
--- shift i (Abs   a) = undefined
---
--- substitute :: Integer -> Expr -> Expr -> Expr
--- substitute i s (App a b) = App (substitute i s a) (substitute i s b)
--- substitute i s (Abs   a) = Abs (substitute (i+1) s a)
--- substitute i s (Var   k)
---   | i == k = shift i s
---   | otherwise = Var k
+-- Follows definition 6.2.1 from TPL
+shift :: Expr -> Expr
+shift e = shift' 0 e where
+  shift' i (Abs   a) = Abs (shift' (i+1) a)
+  shift' i (App a b) = App (shift' i a) (shift' i b)
+  shift' i (Var   k) 
+    | k >= i    = Var (k + 1)
+    | otherwise = Var k
+
+substitute :: Integer -> Expr -> Expr -> Expr
+substitute i s (Abs   e) = Abs (substitute (i+1) (shift s) e)
+substitute i s (App a b) = App (substitute i s a) (substitute i s b)
+substitute i s (Var   k)
+  | i == k    = s
+  | otherwise = Var k
