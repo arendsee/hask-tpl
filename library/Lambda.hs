@@ -1,4 +1,4 @@
-module Benjamin (
+module Lambda (
     interpret
   , Expr(..)
   , Expr(..)
@@ -8,7 +8,7 @@ module Benjamin (
   , shift
 ) where
 
-import Benjamin.Types
+import Lambda.Types
 
 interpret :: String -> String
 interpret s = "i saw a '" ++ s ++ "'" 
