@@ -1,10 +1,15 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 module Moplac.TypedCalculi (
-  Typed(..)
+  --   Typed(..)
+  -- , Context
 ) where
 
-import Moplac.L1
+-- import Moplac.L1
 
-class Typed a where
-  erase :: a -> L1
-  -- check :: a -> Bool
-  -- infer :: a -> t -- need type dependencies
+-- type Context a = [(Int, a)]
+--
+-- class Typed a t where
+--   erase :: a -> L1
+--   infer :: Context t -> a -> Maybe t
+--   -- check :: a -> Bool
