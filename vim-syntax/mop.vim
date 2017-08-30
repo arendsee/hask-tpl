@@ -28,7 +28,7 @@ syn match operator /\[/
 syn match operator /\]/
 
 " abstractions
-syn match function /\\[a-z]\+/
+syn match function /\\[_a-z]\+/
 syn match function /\./
 
 " types

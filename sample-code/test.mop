@@ -1,5 +1,4 @@
--- lets make this really close to the mathematical lambda notation, for now. I
--- might add a different lexer later if I want something prettier (e.g. like in
--- Scheme). I will use '\' for lambda.
+x:Bool
+y:Bool
 
-( \f:(Bool->Bool->Bool). \y. \z. f y z ) (\x. \y. x)
+( \f:(Bool->Bool->Bool). \y. \z. f y z ) (\x. \_. x) x y
